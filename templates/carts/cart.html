@@ -6,19 +6,15 @@
 {% block content %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
-  <!-- inner page section -->
   <section class="inner_page_head">
     <div class="container_fuild">
       <div class="row">
         <div class="col-md-12">
-          <div class="full">
-            <h3>Your Cart</h3>
-          </div>
+          <h3>Your Cart</h3>
         </div>
       </div>
     </div>
   </section>
-  <!-- end inner page section -->
 
   <section class="container my-5">
     <h3 class="mb-4">Shopping Cart</h3>
@@ -36,7 +32,7 @@
         </thead>
         <tbody>
           {% for item in cart_items %}
-            <tr>
+            <tr data-product-id="{{ item.product.id }}">
               <td style="width: 80px">
                 <div style="width: 60px; height: 60px; overflow: hidden; margin: auto">
                   <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%" />
@@ -44,9 +40,9 @@
               </td>
               <td>{{ item.product.name }}</td>
               <td>
-                <input type="number" class="form-control text-center mx-auto" value="{{ item.quantity }}" min="1" style="width: 70px" />
+                <input type="number" class="form-control text-center mx-auto quantity" value="{{ item.quantity }}" min="1" style="width: 70px" />
               </td>
-              <td>${{ item.total }}</td>
+              <td class="total">${{ item.total }}</td>
               <td>
                 <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-sm btn-danger text-light"><i class="bi bi-trash-fill"></i></a>
               </td>
@@ -60,10 +56,47 @@
       </table>
     </div>
 
-    <!-- Checkout Section -->
     <div class="text-end mt-4">
-      <h5 class="mb-3">Total: <span class="fw-bold">$149.97</span></h5>
+      <h5 class="mb-3">Total: <span class="fw-bold">${{ cart_total }}</span></h5>
       <button class="btn px-4 py-2" style="background-color: #f7444e; color: white; border-radius: 0px">Proceed to Checkout</button>
     </div>
   </section>
+
+  <script>
+    document.querySelectorAll('.quantity').forEach(function (input) {
+      input.addEventListener('change', function () {
+        let row = input.closest('tr')
+        let quantity = parseInt(input.value)
+        let productId = row.getAttribute('data-product-id')
+
+        updateCartQuantity(productId, quantity)
+      })
+    })
+
+    function updateCartQuantity(productId, quantity) {
+        fetch(`/carts/update-quantity/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === 'success') {
+                let row = document.querySelector(`tr[data-product-id="${productId}"]`)
+                let totalCell = row.querySelector('.total')
+                totalCell.textContent = `$${data.total}`
+            } else {
+                alert('Failed to update quantity.')
+            }
+        })
+        .catch((error) => console.error('Error:', error))
+    }
+
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  </script>
 {% endblock %}
