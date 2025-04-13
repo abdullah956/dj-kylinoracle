@@ -78,7 +78,8 @@
         </div>
 
         <!-- Add to Cart Button -->
-        <button class="btn px-4 py-2" style="background-color: #8c0c0c; color: white; border-radius: 0px">Add to Cart</button>
+        <a href="{% url 'add_to_cart' product.id %}" class="btn px-4 py-2" style="background-color: #8c0c0c; color: white; border-radius: 0px">Add to Cart</a>
+
       </div>
     </div>
   </section>
