@@ -26,3 +26,6 @@ def cart_view(request):
 
 def checkout_view(request):
     return render(request, 'checkout.html')
+
+def price_view(request):
+    return render(request, 'nullprice.html')

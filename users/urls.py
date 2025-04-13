@@ -8,7 +8,8 @@ from .views import (
     product_view,
     description_view,
     cart_view,
-    checkout_view
+    checkout_view,
+    price_view
 )
 
 
@@ -22,5 +23,6 @@ urlpatterns = [
     path('description/', description_view, name='description'),
     path('cart/', cart_view, name='cart'),
     path('checkout/', checkout_view, name='checkout'),
+    path('price/', price_view, name='nullprice'),
 ]
 
