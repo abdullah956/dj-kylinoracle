@@ -14,6 +14,8 @@
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <meta name="author" content="" />
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/png">
+
     <!-- <link rel="shortcut icon" href="images/favicon.png" type=""> -->
     <title>{% block title %}{% endblock %}</title>
 
@@ -37,7 +39,7 @@
         <div class="container">
           <nav class="navbar navbar-expand-lg custom_nav-container">
             <a class="navbar-brand" href="index.html"
-              ><img width="200" src="{% static 'images/ttt.jpg' %}" alt="#" />
+              ><img width="220" src="{% static 'images/log.png' %}" alt="#" />
             </a>
             <button
               class="navbar-toggler"
@@ -125,8 +127,8 @@
                   </button>
                   <button
                     onclick="closeSearchPopup()"
-                    class="text-light btn btn-danger"
-                    style="margin-left: 5px"
+                    class="text-light btn "
+                    style="margin-left: 5px;background-color:#8c0c0c;"
                   >
                     x
                   </button>
@@ -151,7 +153,7 @@
                 <a href="#"
                   ><img
                     width="250"
-                    src="{% static 'images/logof.png' %}"
+                    src="{% static 'images/log.png' %}"
                     alt="#"
                   />
                 </a>
