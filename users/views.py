@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
 from .forms import ContactMessageForm,NewsletterSubscriberForm
 from django.contrib import messages
+from products.models import Product
 
 def home_view(request):
-    return render(request, 'home.html')
+    products = Product.objects.all()
+    return render(request, 'home.html', {'products': products})
+
 
 def about_view(request):
     return render(request, 'users/about.html')
