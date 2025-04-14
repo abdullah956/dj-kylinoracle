@@ -17,7 +17,12 @@ def product_view(request):
 
 def description_view(request, id):
     product = Product.objects.get(id=id)
+
+    if product.price is None:
+        return render(request, 'products/nullprice.html', {'product': product})
+
     return render(request, 'products/description.html', {'product': product})
+
 
 def nullprice_view(request):
     return render(request, 'products/nullprice.html')
