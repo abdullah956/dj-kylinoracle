@@ -356,8 +356,10 @@
   <div class="box">
     <div class="option_container">
       <div class="options">
-        <a href="#" class="option1">{{ product.name }}</a>
-        <a href="#" class="option2">Buy Now</a>
+        {% if product.price %}
+        <a href="{% url 'add_to_cart' product.id %}" class="option1">Add to Cart</a>
+        {% endif %}
+        <a href="{% url 'description' product.id %}" class="option2">View Product</a>
       </div>
     </div>
     <div class="img-box">
@@ -370,6 +372,7 @@
   </div>
 </div>
 {% endfor %}
+
 
           
           <!-- <div class="col-sm-6 col-md-4 col-lg-4">
