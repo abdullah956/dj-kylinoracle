@@ -91,3 +91,12 @@ def checkout_special_view(request, product_id):
         'entered_price': entered_price,
         'cart_total': entered_price
     })
+
+
+def order_list_view(request):
+    orders = Order.objects.all().order_by('-created_at')
+    return render(request, 'checkouts/order_list.html', {'orders': orders})
+
+def order_detail_view(request, id):
+    order = get_object_or_404(Order, id=id)
+    return render(request, 'checkouts/order_detail.html', {'order': order})
