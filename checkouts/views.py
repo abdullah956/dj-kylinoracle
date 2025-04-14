@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Order
+from django.conf import settings
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -31,26 +33,39 @@ def checkout_view(request):
 
     if request.method == 'POST':
         order = Order.objects.create(
-        cart_data=detailed_cart,
-        cart_total=cart_total,
-        full_name=request.POST.get('full_name'),
-        phone_number=request.POST.get('phone_number'),
-        email=request.POST.get('email'),
-        city=request.POST.get('city'),
-        shipping_address=request.POST.get('shipping_address'),
-        paypal_payment=True
+            cart_data=detailed_cart,
+            cart_total=cart_total,
+            full_name=request.POST.get('full_name'),
+            phone_number=request.POST.get('phone_number'),
+            email=request.POST.get('email'),
+            city=request.POST.get('city'),
+            shipping_address=request.POST.get('shipping_address'),
+            paypal_payment=True
         )
+        subject = 'Order Confirmation - Your Order is on the Way!'
+        message = f"Hi {order.full_name},\n\nThank you for your order. It has been placed successfully. Your order details are as follows:\n\n"
+        
+        for product_id, product_info in order.cart_data.items():
+            message += f"Product: {product_info['name']}\n"
+            message += f"Price: ${product_info['price']}\n"
+            message += f"Quantity: {product_info['quantity']}\n"
+            message += f"Total: ${product_info['total']}\n\n"
 
+        message += f"Total Order Value: ${order.cart_total}\n\n"
+        message += "Your order will be shipped to:\n"
+        message += f"Address: {order.shipping_address}\n\n"
+        message += "Thank you for shopping with us!\n\nBest regards,\nThe Team"
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
         request.session['cart'] = {}
         return redirect('home')
 
     return render(request, 'checkouts/checkout.html', {'cart_total': cart_total})
-
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def checkout_special_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+
     if request.method == 'POST':
         print(request.POST)
         entered_price = max(float(request.POST.get('price', 50)), 50.00)
@@ -59,6 +74,7 @@ def checkout_special_view(request, product_id):
         email = request.POST.get('email')
         city = request.POST.get('city')
         shipping_address = request.POST.get('shipping_address')
+
         if not full_name or not phone_number or not email or not city or not shipping_address:
             print("Missing required billing information")
             return render(request, 'checkouts/special_checkout.html', {
@@ -67,7 +83,7 @@ def checkout_special_view(request, product_id):
                 'cart_total': entered_price,
                 'error': "Please fill out all required fields."
             })
-        Order.objects.create(
+        order = Order.objects.create(
             cart_data={ 
                 str(product_id): {
                     'name': product.name,
@@ -86,14 +102,27 @@ def checkout_special_view(request, product_id):
             shipping_address=shipping_address,
             paypal_payment=True
         )
+        subject = 'Order Confirmation - Your Special Order is on the Way!'
+        message = f"Hi {full_name},\n\nThank you for your special order. Your order details are as follows:\n\n"
+        
+        message += f"Product: {product.name}\n"
+        message += f"Price: ${entered_price}\n"
+        message += f"Quantity: 1\n"
+        message += f"Total: ${entered_price}\n\n"
+
+        message += f"Total Order Value: ${entered_price}\n\n"
+        message += "Your order will be shipped to:\n"
+        message += f"Address: {shipping_address}\n\n"
+        message += "Thank you for shopping with us!\n\nBest regards,\nThe Team"
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
         return redirect('home')
+
     entered_price = max(float(request.GET.get('price', 50)), 50.00)
     return render(request, 'checkouts/special_checkout.html', {
         'product': product,
         'entered_price': entered_price,
         'cart_total': entered_price
     })
-
 
 def order_list_view(request):
     form = OrderDateFilterForm(request.GET)
