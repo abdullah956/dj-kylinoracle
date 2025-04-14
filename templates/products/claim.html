@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Add Price
+{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .rating input[type='radio'] {
+      display: none;
+    }
+    
+    .rating label {
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    
+    .rating input:checked ~ label i,
+    .rating input:checked + label i,
+    .rating input:checked + label ~ label i {
+      color: #8c0c0c;
+    }
+    
+    .rating label:hover ~ label i,
+    .rating label:hover i {
+      color: #8c0c0c;
+    }
+    
+    .custom-width {
+      width: 80%; /* Adjust this value as per your need */
+      max-width: 800px; /* Optional: set a maximum width */
+      margin: 0 30px;
+    }
+  </style>
+
+  <!-- inner page section -->
+  <section class="inner_page_head">
+    <div class="container_fuild">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="full">
+            <h3>Claim Product</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- end inner page section -->
+
+  <section class="container my-5">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="row align-items-start">
+        <!-- Left: Product Image -->
+        <div class="col-md-6 mb-4 mb-md-0">
+          <img src="{% static 'images/logooo.png' %}" alt="Product Image" class="img-fluid rounded shadow" />
+        </div>
+
+        <!-- Right: Product Info -->
+        <div class="col-md-6">
+          <h2 class="mb-3">Claim Product Here</h2>
+          <p class="mb-4 text-muted">Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur est facere aliquid voluptatum, autem impedit eveniet corporis dolore, dolorem, reprehenderit doloribus repudiandae magnam mollitia quidem tenetur. Nam ut qui doloribus?</p>
+
+          <div class="mb-3">
+            <label for="priceInput" class="form-label">Enter Your Price :</label>
+            <input type="number" id="priceInput" name="price" class="form-control" min="1" value="1" required />
+          </div>
+
+         
+
+          <button type="submit" class="btn px-4 py-2" style="background-color: #8c0c0c; color: white; border-radius: 0px">Checkout</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+ 
+{% endblock %}

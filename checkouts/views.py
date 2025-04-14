@@ -9,6 +9,7 @@ import openpyxl
 from products.models import Product  
 from django.utils.dateparse import parse_date
 from .forms import OrderDateFilterForm
+from django.views.decorators.csrf import csrf_exempt
 
 def checkout_view(request):
     cart_data = request.session.get('cart', {}) 
@@ -60,69 +61,7 @@ def checkout_view(request):
         return redirect('home')
 
     return render(request, 'checkouts/checkout.html', {'cart_total': cart_total})
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
-def checkout_special_view(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-
-    if request.method == 'POST':
-        print(request.POST)
-        entered_price = max(float(request.POST.get('price', 50)), 50.00)
-        full_name = request.POST.get('full_name')
-        phone_number = request.POST.get('phone_number')
-        email = request.POST.get('email')
-        city = request.POST.get('city')
-        shipping_address = request.POST.get('shipping_address')
-
-        if not full_name or not phone_number or not email or not city or not shipping_address:
-            print("Missing required billing information")
-            return render(request, 'checkouts/special_checkout.html', {
-                'product': product,
-                'entered_price': entered_price,
-                'cart_total': entered_price,
-                'error': "Please fill out all required fields."
-            })
-        order = Order.objects.create(
-            cart_data={ 
-                str(product_id): {
-                    'name': product.name,
-                    'price': entered_price,
-                    'quantity': 1,
-                    'total': entered_price,
-                    'image': product.image.url if product.image else '',
-                    'code': product.code if hasattr(product, 'code') else ''
-                }
-            },
-            cart_total=entered_price,
-            full_name=full_name,
-            phone_number=phone_number,
-            email=email,
-            city=city,
-            shipping_address=shipping_address,
-            paypal_payment=True
-        )
-        subject = 'Order Confirmation - Your Special Order is on the Way!'
-        message = f"Hi {full_name},\n\nThank you for your special order. Your order details are as follows:\n\n"
-        
-        message += f"Product: {product.name}\n"
-        message += f"Price: ${entered_price}\n"
-        message += f"Quantity: 1\n"
-        message += f"Total: ${entered_price}\n\n"
-
-        message += f"Total Order Value: ${entered_price}\n\n"
-        message += "Your order will be shipped to:\n"
-        message += f"Address: {shipping_address}\n\n"
-        message += "Thank you for shopping with us!\n\nBest regards,\nThe Team"
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
-        return redirect('home')
-
-    entered_price = max(float(request.GET.get('price', 50)), 50.00)
-    return render(request, 'checkouts/special_checkout.html', {
-        'product': product,
-        'entered_price': entered_price,
-        'cart_total': entered_price
-    })
 
 def order_list_view(request):
     form = OrderDateFilterForm(request.GET)
@@ -163,3 +102,32 @@ def download_orders_excel(request):
     response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
     wb.save(response)
     return response
+
+def claim_checkout_view(request):
+    if request.method == 'POST':
+        claim_data = request.session.get('claim_checkout')
+        if not claim_data:
+            return redirect('claim')
+
+        Order.objects.create(
+            full_name=request.POST.get('full_name'),
+            phone_number=request.POST.get('phone_number'),
+            email=request.POST.get('email'),
+            city=request.POST.get('city'),
+            shipping_address=request.POST.get('shipping_address'),
+            cart_data={'claim': 'Free Claim'},
+            cart_total=claim_data.get('price'),
+            paypal_payment=True
+        )
+
+        del request.session['claim_checkout']
+        return redirect('home')
+
+    elif request.method == 'GET':
+        claim_data = request.session.get('claim_checkout')
+        if not claim_data:
+            return redirect('claim')
+
+        return render(request, 'checkouts/claim_checkout.html', {
+            'cart_total': claim_data.get('price')
+        })

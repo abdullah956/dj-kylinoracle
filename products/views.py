@@ -46,7 +46,16 @@ def description_view(request, id):
         'unfilled_stars': unfilled_stars
     }
 
-    if product.price is None:
-        return render(request, 'products/nullprice.html', context)
-
     return render(request, 'products/description.html', context)
+
+
+def claim_view(request):
+    if request.method == 'POST':
+        price = request.POST.get('price')
+        print('PRICE:', price)  # debug
+        if price:
+            request.session['claim_checkout'] = {
+                'price': float(price)
+            }
+            return redirect('claim_checkout')
+    return render(request, 'products/claim.html')
