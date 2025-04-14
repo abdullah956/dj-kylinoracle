@@ -25,9 +25,13 @@
     <h4 class="mb-4 fw-semibold text-uppercase">Filter by Category</h4>
 
     <div class="d-flex flex-wrap gap-2">
-      <button class="category-btn active">All</button>
+      <form method="get">
+        <button type="submit" name="category" value="all" class="category-btn {% if not request.GET.category or request.GET.category == 'all' %}active{% endif %}">All</button>
+      </form>
       {% for category in categories %}
-        <button class="category-btn">{{ category.name }}</button>
+        <form method="get">
+          <button type="submit" name="category" value="{{ category.id }}" class="category-btn {% if request.GET.category == category.id|stringformat:'s' %}active{% endif %}">{{ category.name }}</button>
+        </form>
       {% endfor %}
     </div>
   </section>
