@@ -3,8 +3,10 @@ from .models import Order
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-
+import openpyxl
 from products.models import Product  
+from django.utils.dateparse import parse_date
+from .forms import OrderDateFilterForm
 
 def checkout_view(request):
     cart_data = request.session.get('cart', {}) 
@@ -94,9 +96,41 @@ def checkout_special_view(request, product_id):
 
 
 def order_list_view(request):
+    form = OrderDateFilterForm(request.GET)
     orders = Order.objects.all().order_by('-created_at')
-    return render(request, 'checkouts/order_list.html', {'orders': orders})
+    
+    if form.is_valid():
+        filter_date = form.cleaned_data.get('filter_date')
+        
+        if filter_date:
+            orders = orders.filter(created_at__date=filter_date)
+
+    return render(request, 'checkouts/order_list.html', {'orders': orders, 'form': form})
 
 def order_detail_view(request, id):
     order = get_object_or_404(Order, id=id)
     return render(request, 'checkouts/order_detail.html', {'order': order})
+
+def download_orders_excel(request):
+    orders = Order.objects.all()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Orders"
+    headers = ['Order ID', 'Customer Name', 'Email', 'Total', 'Status', 'Shipping Address', 'Phone']
+    ws.append(headers)
+
+    for order in orders:
+        row = [
+            order.id,
+            order.full_name,
+            order.email,
+            order.cart_total,
+            order.get_status_display(),
+            order.shipping_address,
+            order.phone_number
+        ]
+        ws.append(row)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
+    wb.save(response)
+    return response
