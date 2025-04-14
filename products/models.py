@@ -15,3 +15,13 @@ class Product(BasedModel):
 
     def __str__(self):
         return self.name
+    
+class Review(BasedModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    reviewer_name = models.CharField(max_length=100)
+    reviewer_email = models.EmailField()
+    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])
+    message = models.TextField()
+
+    def __str__(self):
+        return f'Review for {self.product.name} by {self.reviewer_name}'

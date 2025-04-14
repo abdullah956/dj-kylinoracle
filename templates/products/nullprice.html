@@ -72,12 +72,13 @@
           </div>
 
           <div class="mb-3">
-            <span class="text-warning fs-5">&#9733;</span>
-            <span class="text-warning fs-5">&#9733;</span>
-            <span class="text-warning fs-5">&#9733;</span>
-            <span class="text-warning fs-5">&#9733;</span>
-            <span class="text-secondary fs-5">&#9734;</span>
-            <small class="ms-2 text-muted">(4.0/5)</small>
+            {% for _ in filled_stars %}
+              <span class="text-warning fs-5">&#9733;</span>
+            {% endfor %}
+            {% for _ in unfilled_stars %}
+              <span class="text-secondary fs-5">&#9734;</span>
+            {% endfor %}
+            <small class="ms-2 text-muted">({{ avg_rating }}/5)</small>
           </div>
 
           <button type="submit" class="btn px-4 py-2" style="background-color: #8c0c0c; color: white; border-radius: 0px">Checkout</button>
@@ -89,17 +90,18 @@
   <section class="container-fluid my-5">
     <h4 class="mb-4 fw-semibold text-uppercase mx-5">Leave a Product Review</h4>
 
-    <form class="row g-3 custom-width">
+    <form class="row g-3 custom-width" method="POST" action="{% url 'description' id=product.id %}">
+      {% csrf_token %}
       <!-- Name -->
       <div class="col-md-6">
         <label for="reviewerName" class="form-label">Your Name</label>
-        <input type="text" class="form-control" id="reviewerName" placeholder="Enter your name" required />
+        <input type="text" class="form-control" id="reviewerName" name="reviewer_name" placeholder="Enter your name" required />
       </div>
 
       <!-- Email -->
       <div class="col-md-6">
         <label for="reviewerEmail" class="form-label">Email Address</label>
-        <input type="email" class="form-control" id="reviewerEmail" placeholder="example@example.com" required />
+        <input type="email" class="form-control" id="reviewerEmail" name="reviewer_email" placeholder="example@example.com" required />
       </div>
 
       <!-- Rating -->
@@ -126,7 +128,7 @@
       <!-- Review Message -->
       <div class="col-12">
         <label for="reviewMessage" class="form-label">Your Feedback</label>
-        <textarea class="form-control" id="reviewMessage" rows="4" placeholder="Write your review here..." required></textarea>
+        <textarea class="form-control" id="reviewMessage" name="message" rows="4" placeholder="Write your review here..." required></textarea>
       </div>
 
       <!-- Submit Button -->
