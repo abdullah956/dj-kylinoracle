@@ -118,19 +118,13 @@
                     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                   "
                 >
-                  <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Type to search..."
-                    style="padding: 8px; width: 200px"
-                  />
-                  <button
-                    onclick="submitSearch()"
-                    style="margin-left: 10px"
-                    class="btn btn-dark text-light"
-                  >
-                    <i class="fa fa-search" aria-hidden="true"></i>
-                  </button>
+                  <form class="form-inline" action="{% url 'product_search' %}" method="get" >
+  <input type="text" name="q" id="searchInput" placeholder="Type to search..." style="padding: 8px; width: 200px" value="{{ query }}">
+  <button class="btn my-2 my-sm-0 nav_search-btn text-danger" type="submit">
+    <i class="fa fa-search" style="color: #8c0c0c;" aria-hidden="true"></i>
+  </button>
+</form>
+
                   <button
                     onclick="closeSearchPopup()"
                     class="text-light btn "

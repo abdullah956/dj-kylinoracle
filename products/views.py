@@ -59,3 +59,9 @@ def claim_view(request):
             }
             return redirect('claim_checkout')
     return render(request, 'products/claim.html')
+
+
+def product_search(request):
+    query = request.GET.get('q', '') 
+    products = Product.objects.filter(name__icontains=query) if query else Product.objects.all()
+    return render(request, 'products/product.html', {'products': products, 'query': query})
