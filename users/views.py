@@ -5,7 +5,15 @@ from products.models import Product
 
 def home_view(request):
     products = Product.objects.all()
-    return render(request, 'home.html', {'products': products})
+    form = NewsletterSubscriberForm()
+
+    if request.method == 'POST':
+        form = NewsletterSubscriberForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(request.path)
+
+    return render(request, 'home.html', {'products': products, 'form': form})
 
 
 def about_view(request):

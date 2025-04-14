@@ -10,3 +10,7 @@ class NewsletterSubscriberForm(forms.ModelForm):
     class Meta:
         model = NewsletterSubscriber
         fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Enter your email'}),
+        }
+
