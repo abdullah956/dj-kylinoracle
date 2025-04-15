@@ -103,13 +103,14 @@ def download_orders_excel(request):
     wb.save(response)
     return response
 
+
 def claim_checkout_view(request):
     if request.method == 'POST':
         claim_data = request.session.get('claim_checkout')
         if not claim_data:
             return redirect('claim')
 
-        Order.objects.create(
+        order = Order.objects.create(
             full_name=request.POST.get('full_name'),
             phone_number=request.POST.get('phone_number'),
             email=request.POST.get('email'),
@@ -119,6 +120,17 @@ def claim_checkout_view(request):
             cart_total=claim_data.get('price'),
             paypal_payment=True
         )
+
+        subject = 'Free Claim Confirmation - Your Order is Confirmed!'
+        message = f"Hi {order.full_name},\n\nThank you for claiming your free product. Your order has been successfully placed.\n\n"
+        message += "Order Details:\n"
+        message += "Product: Free Claim\n"
+        message += f"Total: ${order.cart_total}\n\n"
+        message += "Shipping Address:\n"
+        message += f"{order.shipping_address}\n\n"
+        message += "We hope you enjoy your product!\n\nBest regards,\nThe Team"
+
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
 
         del request.session['claim_checkout']
         return redirect('home')
