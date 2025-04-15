@@ -473,70 +473,26 @@
           data-ride="carousel"
         >
           <div class="carousel-inner">
-            <div class="carousel-item active">
-              <div class="box col-lg-10 mx-auto">
-                <div class="img_container">
-                  <div class="img-box">
-                    <div class="img_box-inner">
-                     <img src="{% static 'images/client.jpg' %}" alt="" />
-                  </div>
-                  </div>
-                </div>
-                <div class="detail-box">
-                  <h5>Anna Trevor</h5>
-                  <h6>Customer</h6>
-                  <p>
-                    Dignissimos reprehenderit repellendus nobis error quibusdam?
-                    Atque animi sint unde quis reprehenderit, et, perspiciatis,
-                    debitis totam est deserunt eius officiis ipsum ducimus ad
-                    labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                  </p>
-                </div>
-              </div>
+   {% for review in testimonials %}
+   <div class="carousel-item {% if forloop.first %}active{% endif %}">
+      <div class="box col-lg-10 mx-auto">
+         <div class="img_container">
+            <div class="img-box">
+               <div class="img_box-inner">
+                  <img src="{% static 'images/client.jpg' %}" alt="">
+               </div>
             </div>
-            <div class="carousel-item">
-              <div class="box col-lg-10 mx-auto">
-                <div class="img_container">
-                  <div class="img-box">
-                    <div class="img_box-inner">
-                      <img src="images/client.jpg" alt="" />
-                    </div>
-                  </div>
-                </div>
-                <div class="detail-box">
-                  <h5>Anna Trevor</h5>
-                  <h6>Customer</h6>
-                  <p>
-                    Dignissimos reprehenderit repellendus nobis error quibusdam?
-                    Atque animi sint unde quis reprehenderit, et, perspiciatis,
-                    debitis totam est deserunt eius officiis ipsum ducimus ad
-                    labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <div class="box col-lg-10 mx-auto">
-                <div class="img_container">
-                  <div class="img-box">
-                    <div class="img_box-inner">
-                      <img src="images/client.jpg" alt="" />
-                    </div>
-                  </div>
-                </div>
-                <div class="detail-box">
-                  <h5>Anna Trevor</h5>
-                  <h6>Customer</h6>
-                  <p>
-                    Dignissimos reprehenderit repellendus nobis error quibusdam?
-                    Atque animi sint unde quis reprehenderit, et, perspiciatis,
-                    debitis totam est deserunt eius officiis ipsum ducimus ad
-                    labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+         </div>
+         <div class="detail-box">
+            <h5>{{ review.reviewer_name }}</h5>
+            <h6>Customer - {{ review.product.name }}</h6>
+            <p>{{ review.message }}</p>
+         </div>
+      </div>
+   </div>
+   {% endfor %}
+</div>
+
           <div class="carousel_btn_box">
             <a
               class="carousel-control-prev"
