@@ -10,6 +10,15 @@ from products.models import Product
 from django.utils.dateparse import parse_date
 from .forms import OrderDateFilterForm
 from django.views.decorators.csrf import csrf_exempt
+import json
+import paypalrestsdk
+
+paypalrestsdk.configure({
+    "mode": settings.PAYPAL_MODE,
+    "client_id": settings.PAYPAL_CLIENT_ID,
+    "client_secret": settings.PAYPAL_CLIENT_SECRET,
+})
+
 
 def checkout_view(request):
     cart_data = request.session.get('cart', {}) 
@@ -31,37 +40,47 @@ def checkout_view(request):
             'image': product.image.url if product.image else '',
             'code': product.code if hasattr(product, 'code') else ''
         }
-
+    print(cart_total)
     if request.method == 'POST':
-        order = Order.objects.create(
-            cart_data=detailed_cart,
-            cart_total=cart_total,
-            full_name=request.POST.get('full_name'),
-            phone_number=request.POST.get('phone_number'),
-            email=request.POST.get('email'),
-            city=request.POST.get('city'),
-            shipping_address=request.POST.get('shipping_address'),
-            paypal_payment=True
-        )
-        subject = 'Order Confirmation - Your Order is on the Way!'
-        message = f"Hi {order.full_name},\n\nThank you for your order. It has been placed successfully. Your order details are as follows:\n\n"
-        
-        for product_id, product_info in order.cart_data.items():
-            message += f"Product: {product_info['name']}\n"
-            message += f"Price: ${product_info['price']}\n"
-            message += f"Quantity: {product_info['quantity']}\n"
-            message += f"Total: ${product_info['total']}\n\n"
+        request.session['checkout_data'] = {
+            'full_name': request.POST.get('full_name'),
+            'phone_number': request.POST.get('phone_number'),
+            'email': request.POST.get('email'),
+            'city': request.POST.get('city'),
+            'shipping_address': request.POST.get('shipping_address'),
+        }
+        return JsonResponse({'status': 'ok'})
+    
+    return render(request, 'checkouts/checkout.html', {'cart_total': cart_total,'paypal_client_id': settings.PAYPAL_CLIENT_ID })
 
-        message += f"Total Order Value: ${order.cart_total}\n\n"
-        message += "Your order will be shipped to:\n"
-        message += f"Address: {order.shipping_address}\n\n"
-        message += "Thank you for shopping with us!\n\nBest regards,\nThe Team"
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
-        request.session['cart'] = {}
-        return redirect('home')
+@csrf_exempt
+def save_order_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            cart_data = request.session.get('cart', {})
 
-    return render(request, 'checkouts/checkout.html', {'cart_total': cart_total})
+            if not cart_data:
+                return JsonResponse({'error': 'Missing cart data'}, status=400)
 
+            cart_total = sum(
+                float(get_object_or_404(Product, id=pid).price) * qty
+                for pid, qty in cart_data.items()
+            )
+
+            order = Order.objects.create(
+                cart_data=cart_data,
+                full_name=data.get('full_name'),
+                phone_number=data.get('phone_number'),
+                email=data.get('email'),
+                city=data.get('city'),
+                shipping_address=data.get('shipping_address'),
+                cart_total=cart_total,
+                paid=True
+            )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 def order_list_view(request):
     form = OrderDateFilterForm(request.GET)
@@ -143,3 +162,5 @@ def claim_checkout_view(request):
         return render(request, 'checkouts/claim_checkout.html', {
             'cart_total': claim_data.get('price')
         })
+ 
+

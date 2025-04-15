@@ -135,3 +135,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'abdullaharshed956@gmail.com'  
 EMAIL_HOST_PASSWORD = 'utma bvwh ccoe chie'  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+PAYPAL_CLIENT_ID = 'AafVQs3TE6liZgZ95CtcmHsW1sSgTP6HOeY5mv4yEt2jDASVvopwOABuvgCsbOhYDc8iWjpMowsgEwBo'
+PAYPAL_CLIENT_SECRET = 'EImMJDAvAjU87iFarTE01pWH0-7qvffGNuhWMiGp-myBXjOJff0-INKMFLDvboIVjlvtMt7gQIO5VZT-'
+PAYPAL_MODE = 'sandbox'  # or 'live'
