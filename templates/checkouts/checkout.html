@@ -64,7 +64,7 @@
                     <span>Total</span>
                     <span>${{ cart_total|floatformat:2 }}</span>
                   </div>
-                  <div id="paypal-button-container" class="mt-3"></div>
+                  <div id="paypal-button-container-cart" class="mt-3"></div>
                 </div>
               </div>
             </div>
@@ -147,6 +147,6 @@
           console.error(err)
         }
       })
-      .render('#paypal-button-container')
+      .render('#paypal-button-container-cart')
   </script>
 {% endblock %}

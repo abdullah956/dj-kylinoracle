@@ -55,12 +55,6 @@
                 </div>
               </div>
 
-              <!-- Payment Method -->
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="paymentMethod" id="paypal" checked disabled />
-                <label class="form-check-label" for="paypal">PayPal</label>
-              </div>
-
               <!-- Order Summary -->
               <div class="card shadow-sm border-0 mt-4">
                 <div class="card-body">
@@ -79,9 +73,7 @@
                     <span>${{ request.session.claim_checkout.price }}</span>
                   </div>
 
-                  <div class="text-end mt-4">
-                    <button class="btn w-100 py-2" style="background-color: #f7444e; color: white; border-radius: 0px;">Place Order</button>
-                  </div>
+                  <div id="paypal-button-container-claim" class="mt-3"></div>
                 </div>
               </div>
             </form>
@@ -90,4 +82,79 @@
       </div>
     </div>
   </section>
+
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons"></script>
+
+  <script>
+    function getCookie(name) {
+      let cookieValue = null
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';')
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim()
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+            break
+          }
+        }
+      }
+      return cookieValue
+    }
+    
+    const csrftoken = getCookie('csrftoken')
+    
+    paypal
+      .Buttons({
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [
+              {
+                amount: {
+                  value: '{{ request.session.claim_checkout.price }}'
+                }
+              }
+            ]
+          })
+        },
+        onApprove: function (data, actions) {
+          return actions.order.capture().then(function (details) {
+            const checkoutData = {
+              full_name: document.querySelector('[name="full_name"]').value,
+              phone_number: document.querySelector('[name="phone_number"]').value,
+              email: document.querySelector('[name="email"]').value,
+              city: document.querySelector('[name="city"]').value,
+              shipping_address: document.querySelector('[name="shipping_address"]').value,
+              paypal_order_id: data.orderID
+            }
+            console.log('Fetching URL:', '/checkouts/claim-order-save/');
+            return fetch('/checkouts/save-order/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+              },
+              body: JSON.stringify(checkoutData)
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.status === 'ok') {
+                  alert('Payment successful!')
+                  window.location.href = '/'
+                } else {
+                  alert('Failed to save order: ' + data.error)
+                }
+              })
+          })
+        },
+        onCancel: function () {
+          alert('Payment cancelled.')
+        },
+        onError: function (err) {
+          alert('An error occurred.')
+          console.error(err)
+        }
+      })
+      .render('#paypal-button-container-claim')
+  </script>
 {% endblock %}

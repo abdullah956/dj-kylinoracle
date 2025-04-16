@@ -21,10 +21,12 @@ paypalrestsdk.configure({
 
 
 def checkout_view(request):
+    request.session.pop('claim_checkout', None) 
     cart_data = request.session.get('cart', {}) 
     if not isinstance(cart_data, dict):
         return HttpResponse("Invalid cart data", status=400)
-
+    if not cart_data: 
+        return redirect('cart')  
     detailed_cart = {}
     cart_total = 0
 
@@ -58,28 +60,50 @@ def save_order_view(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            claim_data = request.session.get('claim_checkout')
+            if claim_data and 'price' in claim_data:
+                claim_price = float(claim_data['price'])
+
+                order = Order.objects.create(
+                    cart_data=claim_data,
+                    full_name=data.get('full_name'),
+                    phone_number=data.get('phone_number'),
+                    email=data.get('email'),
+                    city=data.get('city'),
+                    shipping_address=data.get('shipping_address'),
+                    cart_total=claim_price,
+                    paid=True
+                )
+                print(f"Order created from claim: {order}")
+                request.session.pop('claim_checkout', None)
+                request.session.pop('cart', None)
+                return JsonResponse({'status': 'ok'})
             cart_data = request.session.get('cart', {})
+            if cart_data:
+                cart_total = sum(
+                    float(get_object_or_404(Product, id=pid).price) * qty
+                    for pid, qty in cart_data.items()
+                )
 
-            if not cart_data:
-                return JsonResponse({'error': 'Missing cart data'}, status=400)
+                order = Order.objects.create(
+                    cart_data=cart_data,
+                    full_name=data.get('full_name'),
+                    phone_number=data.get('phone_number'),
+                    email=data.get('email'),
+                    city=data.get('city'),
+                    shipping_address=data.get('shipping_address'),
+                    cart_total=cart_total,
+                    paid=True
+                )
+                print(f"Order created from cart: {order}")
+                request.session.pop('cart', None)
+                request.session.pop('claim_checkout', None)
+                return JsonResponse({'status': 'ok'})
 
-            cart_total = sum(
-                float(get_object_or_404(Product, id=pid).price) * qty
-                for pid, qty in cart_data.items()
-            )
+            return JsonResponse({'error': 'No cart or claim data available'}, status=400)
 
-            order = Order.objects.create(
-                cart_data=cart_data,
-                full_name=data.get('full_name'),
-                phone_number=data.get('phone_number'),
-                email=data.get('email'),
-                city=data.get('city'),
-                shipping_address=data.get('shipping_address'),
-                cart_total=cart_total,
-                paid=True
-            )
-            return JsonResponse({'status': 'ok'})
         except Exception as e:
+            print(f"Error: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
 
 def order_list_view(request):
@@ -124,43 +148,21 @@ def download_orders_excel(request):
 
 
 def claim_checkout_view(request):
+    request.session.pop('cart_data', None) 
+    claim_data = request.session.get('claim_checkout') 
+    if not isinstance(claim_data, dict) or 'price' not in claim_data:
+        return HttpResponse("Invalid claim data", status=400)
+    cart_total = float(claim_data['price'])
+
     if request.method == 'POST':
-        claim_data = request.session.get('claim_checkout')
-        if not claim_data:
-            return redirect('claim')
-
-        order = Order.objects.create(
-            full_name=request.POST.get('full_name'),
-            phone_number=request.POST.get('phone_number'),
-            email=request.POST.get('email'),
-            city=request.POST.get('city'),
-            shipping_address=request.POST.get('shipping_address'),
-            cart_data={'claim': 'Free Claim'},
-            cart_total=claim_data.get('price'),
-            paypal_payment=True
-        )
-
-        subject = 'Free Claim Confirmation - Your Order is Confirmed!'
-        message = f"Hi {order.full_name},\n\nThank you for claiming your free product. Your order has been successfully placed.\n\n"
-        message += "Order Details:\n"
-        message += "Product: Free Claim\n"
-        message += f"Total: ${order.cart_total}\n\n"
-        message += "Shipping Address:\n"
-        message += f"{order.shipping_address}\n\n"
-        message += "We hope you enjoy your product!\n\nBest regards,\nThe Team"
-
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
-
-        del request.session['claim_checkout']
-        return redirect('home')
-
-    elif request.method == 'GET':
-        claim_data = request.session.get('claim_checkout')
-        if not claim_data:
-            return redirect('claim')
-
-        return render(request, 'checkouts/claim_checkout.html', {
-            'cart_total': claim_data.get('price')
-        })
- 
-
+        request.session['checkout_data'] = {
+            'full_name': request.POST.get('full_name'),
+            'phone_number': request.POST.get('phone_number'),
+            'email': request.POST.get('email'),
+            'city': request.POST.get('city'),
+            'shipping_address': request.POST.get('shipping_address'),
+        }
+        return JsonResponse({'status': 'ok'})
+    return render(request, 'checkouts/checkout.html', {
+        'cart_total': cart_total,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID     })
