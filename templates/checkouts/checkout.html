@@ -1,152 +1,193 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}
-  Checkout
-{% endblock %}
-
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %} Checkout {%endblock %} 
 {% block content %}
-  <section class="inner_page_head">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="full">
-            <h3>Checkout</h3>
-          </div>
+<section class="inner_page_head">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="full">
+          <h3>Checkout</h3>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="container my-5">
-    <div class="row g-4">
-      <div class="col-lg-7">
-        <div class="card shadow-sm border-0">
-          <div class="card-body">
-            <h4 class="mb-4 border-bottom pb-2">Billing Details</h4>
+<section class="container my-5">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h4 class="mb-4 border-bottom pb-2">Billing Details</h4>
 
-            <!-- Checkout Form -->
-            <div id="checkout-form">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Full Name</label>
-                  <input type="text" class="form-control rounded-0" id="full_name" placeholder="John Doe" required />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Phone Number</label>
-                  <input type="tel" class="form-control rounded-0" id="phone_number" placeholder="+1234567890" required />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Email Address</label>
-                  <input type="email" class="form-control rounded-0" id="email" placeholder="email@example.com" required />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">City</label>
-                  <input type="text" class="form-control rounded-0" id="city" placeholder="City Name" required />
-                </div>
-                <div class="col-12">
-                  <label class="form-label fw-semibold">Shipping Address</label>
-                  <textarea class="form-control rounded-0" id="shipping_address" rows="3" placeholder="Street, Building, Area" required></textarea>
-                </div>
+          <!-- Checkout Form -->
+          <div id="checkout-form">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Full Name</label>
+                <input
+                  type="text"
+                  class="form-control rounded-0"
+                  id="full_name"
+                  placeholder="John Doe"
+                  required
+                />
               </div>
-
-              <div class="card shadow-sm border-0 mt-4">
-                <div class="card-body">
-                  <h5 class="mb-3 border-bottom pb-2">Order Summary</h5>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Subtotal</span>
-                    <span>${{ cart_total|floatformat:2 }}</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Shipping</span>
-                    <span>Free</span>
-                  </div>
-                  <div class="d-flex justify-content-between fw-bold border-top pt-2">
-                    <span>Total</span>
-                    <span>${{ cart_total|floatformat:2 }}</span>
-                  </div>
-                  <div id="paypal-button-container-cart" class="mt-3"></div>
-                </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Phone Number</label>
+                <input
+                  type="tel"
+                  class="form-control rounded-0"
+                  id="phone_number"
+                  placeholder="+1234567890"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input
+                  type="email"
+                  class="form-control rounded-0"
+                  id="email"
+                  placeholder="email@example.com"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">City</label>
+                <input
+                  type="text"
+                  class="form-control rounded-0"
+                  id="city"
+                  placeholder="City Name"
+                  required
+                />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Shipping Address</label>
+                <textarea
+                  class="form-control rounded-0"
+                  id="shipping_address"
+                  rows="3"
+                  placeholder="Street, Building, Area"
+                  required
+                ></textarea>
               </div>
             </div>
-            <!-- End Form -->
+
+            <div class="card shadow-sm border-0 mt-4">
+              <div class="card-body">
+                <h5 class="mb-3 border-bottom pb-2">Order Summary</h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Subtotal</span>
+                  <span>${{ cart_total|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Shipping</span>
+                  <span>Free</span>
+                </div>
+                <div
+                  class="d-flex justify-content-between fw-bold border-top pt-2"
+                >
+                  <span>Total</span>
+                  <span>${{ cart_total|floatformat:2 }}</span>
+                </div>
+                <!-- Supported Payment Icons -->
+                <div id="paypal-supported-icons" class="mb-3 text-center">
+                  <img
+                    src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/cc-badges-ppmcvdam.png"
+                    alt="Accepted Payment Methods"
+                    class="img-fluid"
+                    style="max-height: 30px"
+                  />
+                </div>
+                <div id="paypal-button-container-cart" class="mt-3"></div>
+              </div>
+            </div>
           </div>
+          <!-- End Form -->
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons"></script>
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons,funding-eligibility"></script>
 
-  <script>
-    function getCookie(name) {
-      let cookieValue = null
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';')
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim()
-          if (cookie.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
-            break
-          }
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
-      return cookieValue
     }
-    
-    const csrftoken = getCookie('csrftoken')
-    
-    paypal
-      .Buttons({
-        createOrder: function (data, actions) {
-          return actions.order.create({
-            purchase_units: [
-              {
-                amount: {
-                  value: '{{ cart_total|floatformat:2 }}'
-                }
-              }
-            ]
-          })
-        },
-        onApprove: function (data, actions) {
-          return actions.order.capture().then(function (details) {
-            const checkoutData = {
-              full_name: document.getElementById('full_name').value,
-              phone_number: document.getElementById('phone_number').value,
-              email: document.getElementById('email').value,
-              city: document.getElementById('city').value,
-              shipping_address: document.getElementById('shipping_address').value,
-              paypal_order_id: data.orderID
-            }
-    
-            return fetch('/checkouts/save-order/', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
+    return cookieValue;
+  }
+
+  const csrftoken = getCookie("csrftoken");
+
+  paypal
+    .Buttons({
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          purchase_units: [
+            {
+              amount: {
+                value: "{{ cart_total|floatformat:2 }}",
               },
-              body: JSON.stringify(checkoutData)
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.status === 'ok') {
-                  alert('Payment successful!')
-                  window.location.href = '/'
-                } else {
-                  alert('Failed to save order: ' + data.error)
-                }
-              })
+            },
+          ],
+        });
+      },
+      onApprove: function (data, actions) {
+        return actions.order.capture().then(function (details) {
+          const checkoutData = {
+            full_name: document.getElementById("full_name").value,
+            phone_number: document.getElementById("phone_number").value,
+            email: document.getElementById("email").value,
+            city: document.getElementById("city").value,
+            shipping_address: document.getElementById("shipping_address").value,
+            paypal_order_id: data.orderID,
+          };
+
+          return fetch("/checkouts/save-order/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify(checkoutData),
           })
-        },
-        onCancel: function () {
-          alert('Payment cancelled.')
-        },
-        onError: function (err) {
-          alert('An error occurred.')
-          console.error(err)
-        }
-      })
-      .render('#paypal-button-container-cart')
-  </script>
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "ok") {
+                alert("Payment successful!");
+                window.location.href = "/";
+              } else {
+                alert("Failed to save order: " + data.error);
+              }
+            });
+        });
+      },
+      onCancel: function () {
+        alert("Payment cancelled.");
+      },
+      onError: function (err) {
+        alert("An error occurred.");
+        console.error(err);
+      },
+    })
+    .render("#paypal-button-container-cart");
+</script>
+
+
+
 {% endblock %}
