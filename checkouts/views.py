@@ -78,7 +78,7 @@ def save_order_view(request):
                 claim_price = float(claim_data['price'])
 
                 order = Order.objects.create(
-                    cart_data=claim_data,
+                    cart_data={"Free Claim": "Free Claim"},
                     full_name=full_name,
                     phone_number=data.get('phone_number'),
                     email=email,
@@ -144,9 +144,44 @@ def order_list_view(request):
 
     return render(request, 'checkouts/order_list.html', {'orders': orders, 'form': form})
 
+
 def order_detail_view(request, id):
     order = get_object_or_404(Order, id=id)
-    return render(request, 'checkouts/order_detail.html', {'order': order})
+    cart_items = []
+    for product_id, product_info in order.cart_data.items():
+        if isinstance(product_info, str) and product_info == 'Free Claim':
+            cart_items.append({
+                'name': 'Claim',
+                'price': order.cart_total, 
+                'quantity': 1,
+                'total': order.cart_total
+            })
+        elif isinstance(product_info, dict): 
+            cart_items.append({
+                'name': product_info.get('name', 'Unknown Product'),
+                'price': product_info.get('price', 0),
+                'quantity': product_info.get('quantity', 1),
+                'total': product_info.get('price', 0) * product_info.get('quantity', 1)
+            })
+        else:
+            try:
+                product = Product.objects.get(id=product_id)  
+                cart_items.append({
+                    'name': product.name,
+                    'price': product.price,
+                    'quantity': product_info,  
+                    'total': product.price * product_info 
+                })
+            except Product.DoesNotExist:
+                cart_items.append({
+                    'name': 'Unknown Product',
+                    'price': 0,
+                    'quantity': product_info,
+                    'total': 0
+                })
+    return render(request, 'checkouts/order_detail.html', {'order': order, 'cart_items': cart_items})
+
+
 
 def download_orders_excel(request):
     orders = Order.objects.all()

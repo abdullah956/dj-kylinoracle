@@ -5,59 +5,50 @@
     <h1 class="text-center mb-4">Order Details</h1>
 
     <div class="order-details">
-      <h4>Order ID: {{ order.id }}</h4>
-      <p>
-        <strong>Customer Name:</strong> {{ order.full_name }}
-      </p>
-      <p>
-        <strong>Email:</strong> {{ order.email }}
-      </p>
-      <p>
-        <strong>Phone:</strong> {{ order.phone_number }}
-      </p>
-      <p>
-        <strong>City:</strong> {{ order.city }}
-      </p>
-      <p>
-        <strong>Shipping Address:</strong> {{ order.shipping_address }}
-      </p>
-      <p>
-        <strong>Status:</strong> {{ order.get_status_display }}
-      </p>
-      <p>
-        <strong>Total:</strong> ${{ order.cart_total }}
-      </p>
+        <h4>Order ID: {{ order.id }}</h4>
+        <p>
+            <strong>Customer Name:</strong> {{ order.full_name }}
+        </p>
+        <p>
+            <strong>Email:</strong> {{ order.email }}
+        </p>
+        <p>
+            <strong>Phone:</strong> {{ order.phone_number }}
+        </p>
+        <p>
+            <strong>City:</strong> {{ order.city }}
+        </p>
+        <p>
+            <strong>Shipping Address:</strong> {{ order.shipping_address }}
+        </p>
+        <p>
+            <strong>Status:</strong> {{ order.get_status_display }}
+        </p>
+        <p>
+            <strong>Total:</strong> ${{ order.cart_total }}
+        </p>
 
-      <h5>Cart Details:</h5>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product_id, product_info in order.cart_data.items %}
-            {% if product_info == 'Free Claim' %}
-              <tr>
-                <td>Claim</td>
-                <td>${{ order.cart_total }}</td>
-                <td>1</td>
-                <td>${{ order.cart_total }}</td>
-              </tr>
-            {% else %}
-              <tr>
-                <td>{{ product_info.name }}</td>
-                <td>${{ product_info.price }}</td>
-                <td>{{ product_info.quantity }}</td>
-                <td>${{ order.cart_total }}</td>
-              </tr>
-            {% endif %}
-          {% endfor %}
-        </tbody>
-      </table>
+        <h5>Cart Details:</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>${{ item.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.total }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
 {% endblock %}
