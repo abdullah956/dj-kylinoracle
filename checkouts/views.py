@@ -60,42 +60,69 @@ def save_order_view(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            email = data.get('email')
+            full_name = data.get('full_name')
+            cart_data = request.session.get('cart', {})
             claim_data = request.session.get('claim_checkout')
+
+            def send_plain_email(subject, message, recipient):
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [recipient],
+                    fail_silently=True
+                )
+
             if claim_data and 'price' in claim_data:
                 claim_price = float(claim_data['price'])
 
                 order = Order.objects.create(
                     cart_data=claim_data,
-                    full_name=data.get('full_name'),
+                    full_name=full_name,
                     phone_number=data.get('phone_number'),
-                    email=data.get('email'),
+                    email=email,
                     city=data.get('city'),
                     shipping_address=data.get('shipping_address'),
                     cart_total=claim_price,
                     paid=True
                 )
-                print(f"Order created from claim: {order}")
+
+                body = f"Hi {full_name},\n\nYour order has been placed.\n\n"
+                body += "Free Claim Item:\n"
+                body += f"\nTotal: ${claim_price:.2f}\n\nThank you for your purchase!"
+                send_plain_email("Order Confirmation", body, email)
+
                 request.session.pop('claim_checkout', None)
                 request.session.pop('cart', None)
                 return JsonResponse({'status': 'ok'})
-            cart_data = request.session.get('cart', {})
+
             if cart_data:
-                cart_total = sum(
-                    float(get_object_or_404(Product, id=pid).price) * qty
-                    for pid, qty in cart_data.items()
-                )
+                items_text = ""
+                cart_total = 0
+                for pid, qty in cart_data.items():
+                    product = get_object_or_404(Product, id=pid)
+                    price = float(product.price)
+                    total = price * qty
+                    cart_total += total
+                    items_text += f"{product.name} - ${price:.2f} x {qty} = ${total:.2f}\n"
 
                 order = Order.objects.create(
                     cart_data=cart_data,
-                    full_name=data.get('full_name'),
+                    full_name=full_name,
                     phone_number=data.get('phone_number'),
-                    email=data.get('email'),
+                    email=email,
                     city=data.get('city'),
                     shipping_address=data.get('shipping_address'),
                     cart_total=cart_total,
                     paid=True
                 )
-                print(f"Order created from cart: {order}")
+
+                body = f"Hi {full_name},\n\nYour order has been placed.\n\n"
+                body += "Items:\n" + items_text
+                body += f"\nTotal: ${cart_total:.2f}\n\nThank you for your purchase!"
+                send_plain_email("Order Confirmation", body, email)
+
                 request.session.pop('cart', None)
                 request.session.pop('claim_checkout', None)
                 return JsonResponse({'status': 'ok'})
@@ -103,7 +130,6 @@ def save_order_view(request):
             return JsonResponse({'error': 'No cart or claim data available'}, status=400)
 
         except Exception as e:
-            print(f"Error: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
 
 def order_list_view(request):
