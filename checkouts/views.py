@@ -54,7 +54,7 @@ def checkout_view(request):
             'shipping_address': request.POST.get('shipping_address'),
         }
         return JsonResponse({'status': 'ok'})
-    
+    print(settings.PAYPAL_CLIENT_ID)
     return render(request, 'checkouts/checkout.html', {'cart_total': cart_total,'paypal_client_id': settings.PAYPAL_CLIENT_ID })
 
 
