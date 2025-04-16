@@ -114,7 +114,9 @@
 </section>
 
 <!-- PayPal SDK -->
-<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons,funding-eligibility"></script>
+<!-- <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons,funding-eligibility"></script> -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons,funding-eligibility&enable-funding=venmo&disable-funding=paylater"></script>
+
 
 <script>
   function getCookie(name) {
