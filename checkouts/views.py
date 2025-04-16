@@ -12,6 +12,8 @@ from .forms import OrderDateFilterForm
 from django.views.decorators.csrf import csrf_exempt
 import json
 import paypalrestsdk
+from openpyxl import Workbook
+from datetime import datetime
 
 paypalrestsdk.configure({
     "mode": settings.PAYPAL_MODE,
@@ -54,6 +56,28 @@ def checkout_view(request):
         return JsonResponse({'status': 'ok'})
     
     return render(request, 'checkouts/checkout.html', {'cart_total': cart_total,'paypal_client_id': settings.PAYPAL_CLIENT_ID })
+
+
+def claim_checkout_view(request):
+    request.session.pop('cart_data', None) 
+    claim_data = request.session.get('claim_checkout') 
+    if not isinstance(claim_data, dict) or 'price' not in claim_data:
+        return HttpResponse("Invalid claim data", status=400)
+    cart_total = float(claim_data['price'])
+
+    if request.method == 'POST':
+        request.session['checkout_data'] = {
+            'full_name': request.POST.get('full_name'),
+            'phone_number': request.POST.get('phone_number'),
+            'email': request.POST.get('email'),
+            'city': request.POST.get('city'),
+            'shipping_address': request.POST.get('shipping_address'),
+        }
+        return JsonResponse({'status': 'ok'})
+    return render(request, 'checkouts/checkout.html', {
+        'cart_total': cart_total,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID     })
+
 
 @csrf_exempt
 def save_order_view(request):
@@ -182,15 +206,20 @@ def order_detail_view(request, id):
     return render(request, 'checkouts/order_detail.html', {'order': order, 'cart_items': cart_items})
 
 
-
 def download_orders_excel(request):
+    filter_date = request.GET.get('filter_date')
     orders = Order.objects.all()
-    wb = openpyxl.Workbook()
+    if filter_date:
+        try:
+            filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+            orders = orders.filter(created_at__date=filter_date)
+        except ValueError:
+            orders = orders
+    wb = Workbook()
     ws = wb.active
     ws.title = "Orders"
-    headers = ['Order ID', 'Customer Name', 'Email', 'Total', 'Status', 'Shipping Address', 'Phone']
+    headers = ['Order ID', 'Customer Name', 'Email', 'Total', 'Status', 'Shipping Address', 'Phone', 'Paid']
     ws.append(headers)
-
     for order in orders:
         row = [
             order.id,
@@ -199,31 +228,11 @@ def download_orders_excel(request):
             order.cart_total,
             order.get_status_display(),
             order.shipping_address,
-            order.phone_number
+            order.phone_number,
+            order.paid 
         ]
         ws.append(row)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
     wb.save(response)
     return response
-
-
-def claim_checkout_view(request):
-    request.session.pop('cart_data', None) 
-    claim_data = request.session.get('claim_checkout') 
-    if not isinstance(claim_data, dict) or 'price' not in claim_data:
-        return HttpResponse("Invalid claim data", status=400)
-    cart_total = float(claim_data['price'])
-
-    if request.method == 'POST':
-        request.session['checkout_data'] = {
-            'full_name': request.POST.get('full_name'),
-            'phone_number': request.POST.get('phone_number'),
-            'email': request.POST.get('email'),
-            'city': request.POST.get('city'),
-            'shipping_address': request.POST.get('shipping_address'),
-        }
-        return JsonResponse({'status': 'ok'})
-    return render(request, 'checkouts/checkout.html', {
-        'cart_total': cart_total,
-        'paypal_client_id': settings.PAYPAL_CLIENT_ID     })
