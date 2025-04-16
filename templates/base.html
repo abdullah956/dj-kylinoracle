@@ -57,6 +57,14 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'home' %}">Home </a>
                 </li>
+                
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'products' %}">Products</a>
+                </li>
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'claim' %}">Free Claim</a>
+                </li>
                 <li class="nav-item dropdown">
                   <a
                     class="nav-link dropdown-toggle"
@@ -77,13 +85,6 @@
                   </ul>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'products' %}">Products</a>
-                </li>
-              
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'claim' %}">Free Claim</a>
-                </li>
-                <li class="nav-item">
                   <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                 </li>
                 {% if request.user.is_authenticated %}
@@ -93,14 +94,14 @@
 {% endif %}
 
 
-                <li class="nav-item">
+                <li class="nav-item" style="margin-top: -8px;">
                   <a class="nav-link" href="{% url 'cart' %}">
                     <button class="btn my-2 my-sm-0 nav_search-btn text-danger" type="submit">
                       <i class="fa fa-shopping-cart" style="color: #8c0c0c;" aria-hidden="true"></i>
                     </button>
                   </a>
                 </li>
-                <form class="form-inline" onsubmit="openSearchPopup(event)">
+                <form class="form-inline" onsubmit="openSearchPopup(event)" style="margin-top: -6px;">
                   <button class="btn my-2 my-sm-0 nav_search-btn text-danger" type="submit">
                     <i class="fa fa-search" style="color: #8c0c0c;" aria-hidden="true"></i>
                   </button>
@@ -119,22 +120,25 @@
                     z-index: 9999;
                     border-radius: 8px;
                     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    min-width: 320px;
+                    
                   "
                 >
                   <form class="form-inline" action="{% url 'product_search' %}" method="get" >
-  <input type="text" name="q" id="searchInput" placeholder="Type to search..." style="padding: 8px; width: 200px" value="{{ query }}">
-  <button class="btn my-2 my-sm-0 nav_search-btn text-danger" type="submit">
-    <i class="fa fa-search" style="color: #8c0c0c;" aria-hidden="true"></i>
-  </button>
-</form>
-
-                  <button
+                     <input type="text" name="q" id="searchInput" placeholder="Type to search..." style="padding: 8px; width: 200px;margin-top: 10px;" value="{{ query }}">
+                       <button class="btn my-2 my-sm-0 nav_search-btn text-danger" type="submit">
+                          <i class="fa fa-search" style="color: #8c0c0c;" aria-hidden="true"></i>
+                       </button>
+                       <button
                     onclick="closeSearchPopup()"
                     class="text-light btn "
                     style="margin-left: 5px;background-color:#8c0c0c;"
                   >
                     x
                   </button>
+                  </form>
+
+                  
                 </div>
               </ul>
             </div>
@@ -193,12 +197,8 @@
                     <div class="widget_menu">
                       <h3>Account</h3>
                       <ul>
-                        <li><a href="#">Account</a></li>
-                        <li><a href="#">Checkout</a></li>
-                        <li><a href="#">Login</a></li>
-                        <li><a href="#">Register</a></li>
-                        <li><a href="#">Shopping</a></li>
-                        <li><a href="#">Widget</a></li>
+                        <li><a href="{% url 'admin:login' %}" target="_blank">Admin</a></li>
+                        
                       </ul>
                     </div>
                   </div>
