@@ -236,3 +236,20 @@ def download_orders_excel(request):
     response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
     wb.save(response)
     return response
+
+def update_order_status(request, id):
+    order = get_object_or_404(Order, id=id)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            if new_status in ['shipped', 'delivered']:
+                send_mail(
+                    f"Your order #{order.id} has been {new_status}",
+                    f"Hi {order.full_name}, your order has been {new_status}. Thank you!",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.email],
+                    fail_silently=True,
+                )
+    return redirect(request.META.get('HTTP_REFERER', '/'))
