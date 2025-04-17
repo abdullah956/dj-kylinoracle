@@ -31,6 +31,7 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <!-- responsive style -->
     <link href="{% static 'css/responsive.css' %}" rel="stylesheet" />
+   
   </head>
   <body>
     {% if messages %}
@@ -131,6 +132,9 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                 </li>
+               <!-- Language Selector -->
+
+
                 {% if request.user.is_authenticated %}
 <li class="nav-item">
   <a class="nav-link" href="{% url 'order_list' %}">Orders</a>
@@ -213,12 +217,12 @@
                 </a>
               </div>
               <div class="information_f">
-                <p>
+                {% comment %} <p>
                   <strong>ADDRESS:</strong> 28 White tower, Street Name New York
                   City, USA
-                </p>
-                <p><strong>TELEPHONE:</strong> +91 987 654 3210</p>
-                <p><strong>EMAIL:</strong> yourmain@gmail.com</p>
+                </p> {% endcomment %}
+                <p><strong>TELEPHONE:</strong>+86 19567440619</p>
+                <p><strong>EMAIL:</strong> info.kylinoracle@gmail.com</p>
               </div>
             </div>
           </div>
@@ -306,6 +310,8 @@
     <!-- Bootstrap JS -->
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <!-- Custom JS -->
+      <!-- Google Translate container (hidden) -->
+ 
     {% comment %} <script src="{% static 'js/custom.js' %}"></script> {% endcomment %}
   </body>
 </html>

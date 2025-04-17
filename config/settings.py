@@ -132,8 +132,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'abdullaharshed956@gmail.com'  
-EMAIL_HOST_PASSWORD = 'utma bvwh ccoe chie'  
+EMAIL_HOST_USER = 'info.kylinoracle@gmail.com'  
+EMAIL_HOST_PASSWORD = 'gjiv njci zicv wzlb'  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 PAYPAL_CLIENT_ID = 'AafVQs3TE6liZgZ95CtcmHsW1sSgTP6HOeY5mv4yEt2jDASVvopwOABuvgCsbOhYDc8iWjpMowsgEwBo'

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Language Switch with Baidu Translate</title>
+  <style>
+    .translate-dropdown {
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Language Selector -->
+  <div class="translate-dropdown">
+    <select id="language_selector" onchange="changeLanguage();">
+      <option value="en">English</option>
+      <option value="zh">中文</option>
+    </select>
+  </div>
+
+  <!-- Sample Page Content -->
+  <h1>Welcome to Kyline Oracle</h1>
+  <p>This is a demo page to test language switching using Baidu Translate.</p>
+
+  <!-- Baidu Translate Widget -->
+  <div id="baidu_translate_widget"></div>
+
+  <!-- Baidu Translate Script -->
+  <script>
+    window._bd_translate_config = {
+      defaultLanguage: 'en',
+      translateLanguage: ['zh'],
+      wrapperId: 'baidu_translate_widget'
+    };
+  </script>
+  <script src="https://fanyi.baidu.com/static/translation-widget/translation-widget.js"></script>
+
+  <!-- Language Switch Script -->
+  <script>
+    function changeLanguage() {
+      var lang = document.getElementById('language_selector').value;
+      window.translate && window.translate.selectLanguage(lang);
+    }
+  </script>
+</body>
+</html>

@@ -73,7 +73,7 @@
                     <span>${{ request.session.claim_checkout.price }}</span>
                   </div>
 
-                  <div id="paypal-button-container-claim" class="mt-3"></div>
+                  <div id="paypal-button-container" class="mt-3"></div>
                 </div>
               </div>
             </form>
@@ -84,7 +84,8 @@
   </section>
 
   <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons"></script>
+ <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD&components=buttons,funding-eligibility&enable-funding=venmo&disable-funding=paylater"></script>
+
 
   <script>
     function getCookie(name) {
@@ -155,6 +156,6 @@
           console.error(err)
         }
       })
-      .render('#paypal-button-container-claim')
+      .render('#paypal-button-container')
   </script>
 {% endblock %}
