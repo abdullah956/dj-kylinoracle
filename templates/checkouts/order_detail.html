@@ -51,4 +51,24 @@
         </table>
     </div>
 </div>
+
+<div class="container">
+    <h5 class="mt-4">Product Images:</h5>
+    <div class="row">
+        {% for item in cart_items %}
+            <div class="col-md-3 col-sm-6 mb-4 text-center">
+                <div class="card h-100 shadow-sm">
+                    {% if item.image %}
+                        <img src="{{ item.image }}" class="card-img-top img-fluid" alt="{{ item.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                       
+                    {% endif %}
+                    <div class="card-body">
+                        <p class="card-text font-weight-bold mb-0">{{ item.name }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

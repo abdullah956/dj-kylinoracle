@@ -159,34 +159,73 @@ def save_order_view(request):
 def order_list_view(request):
     form = OrderDateFilterForm(request.GET)
     orders = Order.objects.all().order_by('-created_at')
-    
+
     if form.is_valid():
         filter_date = form.cleaned_data.get('filter_date')
-        
         if filter_date:
             orders = orders.filter(created_at__date=filter_date)
 
-    return render(request, 'checkouts/order_list.html', {'orders': orders, 'form': form})
+    # Filter out orders that contain 'Free Claim'
+    normal_orders = [
+        order for order in orders
+        if not any(value == 'Free Claim' for value in order.cart_data.values())
+    ]
+
+    return render(request, 'checkouts/order_list.html', {
+        'orders': normal_orders,
+        'form': form
+    })
+
+def claim_list_view(request):
+    form = OrderDateFilterForm(request.GET)
+    orders = Order.objects.all().order_by('-created_at')
+
+    if form.is_valid():
+        filter_date = form.cleaned_data.get('filter_date')
+        if filter_date:
+            orders = orders.filter(created_at__date=filter_date)
+
+    # Only include orders that contain 'Free Claim'
+    claim_orders = [
+        order for order in orders
+        if any(value == 'Free Claim' for value in order.cart_data.values())
+    ]
+
+    return render(request, 'checkouts/claim_list.html', {
+        'orders': claim_orders,
+        'form': form
+    })
 
 
 def order_detail_view(request, id):
     order = get_object_or_404(Order, id=id)
     cart_items = []
+
     for product_id, product_info in order.cart_data.items():
         if isinstance(product_info, str) and product_info == 'Free Claim':
             cart_items.append({
                 'name': 'Claim',
                 'price': order.cart_total, 
                 'quantity': 1,
-                'total': order.cart_total
+                'total': order.cart_total,
+                'image': None
             })
+
         elif isinstance(product_info, dict): 
+            try:
+                product = Product.objects.get(id=product_id)
+                image_url = product.image.url if product.image else None
+            except Product.DoesNotExist:
+                image_url = None
+
             cart_items.append({
                 'name': product_info.get('name', 'Unknown Product'),
                 'price': product_info.get('price', 0),
                 'quantity': product_info.get('quantity', 1),
-                'total': product_info.get('price', 0) * product_info.get('quantity', 1)
+                'total': product_info.get('price', 0) * product_info.get('quantity', 1),
+                'image': image_url
             })
+
         else:
             try:
                 product = Product.objects.get(id=product_id)  
@@ -194,16 +233,23 @@ def order_detail_view(request, id):
                     'name': product.name,
                     'price': product.price,
                     'quantity': product_info,  
-                    'total': product.price * product_info 
+                    'total': product.price * product_info,
+                    'image': product.image.url if product.image else None
                 })
             except Product.DoesNotExist:
                 cart_items.append({
                     'name': 'Unknown Product',
                     'price': 0,
                     'quantity': product_info,
-                    'total': 0
+                    'total': 0,
+                    'image': None
                 })
-    return render(request, 'checkouts/order_detail.html', {'order': order, 'cart_items': cart_items})
+
+    return render(request, 'checkouts/order_detail.html', {
+        'order': order,
+        'cart_items': cart_items
+    })
+
 
 
 def download_orders_excel(request):
