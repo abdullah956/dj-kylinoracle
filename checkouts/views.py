@@ -164,17 +164,16 @@ def order_list_view(request):
         filter_date = form.cleaned_data.get('filter_date')
         if filter_date:
             orders = orders.filter(created_at__date=filter_date)
-
-    # Filter out orders that contain 'Free Claim'
-    normal_orders = [
-        order for order in orders
-        if not any(value == 'Free Claim' for value in order.cart_data.values())
-    ]
-
+    if not form.cleaned_data.get('filter_date'):
+        orders = [
+            order for order in orders
+            if not any(value == 'Free Claim' for value in order.cart_data.values())
+        ]
     return render(request, 'checkouts/order_list.html', {
-        'orders': normal_orders,
+        'orders': orders,
         'form': form
     })
+
 
 def claim_list_view(request):
     form = OrderDateFilterForm(request.GET)
